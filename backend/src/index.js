@@ -1,28 +1,26 @@
-import dotenv from 'dotenv';
-dotenv.config({
-    path: './.env'
-});
-
+// 1. Import and config dotenv first using this syntax to handle ESM hoisting
+import 'dotenv/config'; 
 import connectDB from './config/db.js';
 import app from './app.js';
 
-
-
 const startServer = async () => {
-    try{
+    try {
+        // 2. Wait for the DB connection
         await connectDB();
 
         app.on('error', (error) => {
-            console.log('ERROR', error);
+            console.error('EXPRESS ERROR:', error);
             throw error;
         });
-        app.listen(process.env.PORT || 8000, () =>{
-            console.log(`Server is running on port ${process.env.PORT || 8000}`);
-        })
+
+        const PORT = process.env.PORT || 8000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
     } catch (error) {
-        console.error('Error starting server:', error);
+        console.error('Server startup failed:', error);
+        process.exit(1);
     }
-}
-console.log("ENV TEST:", process.env.MONGODB_URI);
+};
 
 startServer();
