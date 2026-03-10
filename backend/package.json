@@ -15,6 +15,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+<<<<<<< HEAD
     "dev": "nodemon src/index.js"
   },
   "dependencies": {
@@ -22,5 +23,12 @@
     "express": "^5.2.1",
     "mongoose": "^9.2.4",
     "nodemon": "^3.1.14"
+=======
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongoose": "^9.2.4"
+>>>>>>> b7785cd1b691b95f8c258e5604028ee49a0a95f9
   }
 }
