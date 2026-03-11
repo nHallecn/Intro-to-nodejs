@@ -3,13 +3,12 @@ import express from "express";
 
 const app = express();
 
-// Middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Test route
-app.get("/", (req, res) => {
-    res.send("API is running...");
-});
+import userRouter from './routes/user.route.js';
+
+app.use('/api/v1/users', userRouter);
+
+
 
 export default app;
