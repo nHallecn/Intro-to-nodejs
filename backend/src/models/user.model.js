@@ -1,3 +1,8 @@
+// 1. THE MODEL FIX (user.model.js)
+// IMPORTANT: Bcrypt hashes are 60 characters long. 
+// Your 'maxLength: 50' on the password field will cause a validation error 
+// during .save(), which likely triggers a catch block in your controller.
+
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 
@@ -17,7 +22,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             minLength: 6,
-            maxLength: 50
+            // REMOVED maxLength: 50 because hashed passwords exceed this limit
         },
 
         email: {
@@ -26,27 +31,49 @@ const userSchema = new Schema(
             unique: true,
             lowercase: true,
             trim: true,
-            
         }
     },
-
     {
         timestamps: true
     }
-)
+);
 
-//before saving any password, we neeed to hash it
-userSchema.pre('save', async function (next) {
-    if(!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+    if (!this.isModified('password')) return;
+    
     this.password = await bcrypt.hash(this.password, 10);
-    next();
+    // Removed next();
 });
 
-//compare passwords
 userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
-}
+};
 
 const User = mongoose.model('User', userSchema);
-
 export default User;
+
+
+// 2. THE CONTROLLER FIX (user.controller.js)
+// The error "next is not a function" usually happens here.
+// Ensure 'next' is included in the function parameters.
+
+export const registerUser = async (req, res, next) => { // <--- MUST INCLUDE 'next' HERE
+    try {
+        const { username, email, password } = req.body;
+        
+        const user = await User.create({
+            username,
+            email,
+            password
+        });
+
+        res.status(201).json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        // If 'next' was missing from the arguments above, 
+        // calling it here causes: "TypeError: next is not a function"
+        next(error); 
+    }
+};
